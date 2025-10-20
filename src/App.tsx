@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import QRCode from "qrcode";
+import './App.css';
 
 /**
  * LoopCard — single-file, local-first React app
@@ -413,45 +414,114 @@ function Dashboard({ s, onPreview, onSettings }) {
   const allOk = required.every((k) => !!s[k]) && isPhone(s.phone) && isPhone(s.whatsapp) && isEmail(s.email);
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <div className="rounded-2xl bg-white p-4 shadow">
-        <h2 className="mb-2 text-xl font-bold">Your Card Summary</h2>
-        <ul className="space-y-1 text-sm text-slate-700">
-          <li><b>Business:</b> {s.businessName || "–"}</li>
-          <li><b>Name:</b> {s.fullName || "–"}</li>
-          <li><b>Phone:</b> {s.phone || "–"}</li>
-          <li><b>WhatsApp:</b> {s.whatsapp || "–"}</li>
-          <li><b>Email:</b> {s.email || "–"}</li>
-          {s.website && <li><b>Website:</b> {s.website}</li>}
-          <li><b>Handle:</b> {s.slug || "–"}</li>
-        </ul>
-        <div className="mt-4 flex gap-2">
-          <Button onClick={onPreview} disabled={!allOk}>Open Public Card</Button>
-          <Button variant="outline" onClick={onSettings}>Edit Settings</Button>
-        </div>
-        {!allOk && <p className="mt-2 text-xs text-rose-600">Complete all required fields in Wizard/Settings to enable Public Card.</p>}
-      </div>
+<div className="card-container">
+  {/* LEFT: Card Summary */}
+  <div className="card">
+    <h2 className="card-title">Your Business Card Summary</h2>
+    <ul className="card-list">
+      <li><b>Business:</b> {s.businessName || "–"}</li>
+      <li><b>Name:</b> {s.fullName || "–"}</li>
+      <li><b>Phone:</b> {s.phone || "–"}</li>
+      <li><b>WhatsApp:</b> {s.whatsapp || "–"}</li>
+      <li><b>Email:</b> {s.email || "–"}</li>
+      {s.website && (
+        <li>
+          <b>Website:</b>{" "}
+          <a href={s.website} target="_blank" rel="noreferrer">
+            {s.website}
+          </a>
+        </li>
+      )}
+      <li><b>Handle:</b> {s.slug || "–"}</li>
+    </ul>
 
-      <div className="rounded-2xl bg-white p-4 shadow">
-        <h2 className="mb-2 text-xl font-bold">QR Code</h2>
-        <p className="mb-2 text-sm text-slate-600">Scan to open: <code>{url}</code></p>
-        <div className="flex items-center justify-center">
-          <div className="aspect-square w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
-            {busy ? (
-              <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">Generating…</div>
-            ) : qrDataUrl ? (
-              <img src={qrDataUrl} alt="QR" className="h-full w-full object-contain" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">No QR</div>
-            )}
-          </div>
-        </div>
-        <div className="mt-3 flex gap-2">
-          <Button onClick={download} disabled={!qrDataUrl}>Download PNG</Button>
-          <Button variant="outline" onClick={() => navigator.clipboard.writeText(url)}>Copy URL</Button>
-        </div>
-      </div>
+    <div className="button-group">
+      <button onClick={onPreview} disabled={!allOk} className="btn-primary">
+        Open Public Card
+      </button>
+      <button onClick={onSettings} className="btn-secondary">
+        Edit Settings
+      </button>
     </div>
+
+    {!allOk && (
+      <p className="warning-text">
+        Complete all required fields in Wizard/Settings to enable Public Card.
+      </p>
+    )}
+  </div>
+
+  {/* RIGHT: QR Code */}
+  <div className="card">
+    <h2 className="card-title">QR Code</h2>
+    <p className="card-subtitle">
+      Scan to open: <code>{url}</code>
+    </p>
+
+    <div className="qr-wrapper">
+      {busy ? (
+        <div className="qr-placeholder">Generating…</div>
+      ) : qrDataUrl ? (
+        <img src={qrDataUrl} alt="QR" className="qr-image" />
+      ) : (
+        <div className="qr-placeholder">No QR</div>
+      )}
+    </div>
+
+    <div className="button-group">
+      <button onClick={download} disabled={!qrDataUrl} className="btn-primary">
+        Download PNG
+      </button>
+      <button
+        onClick={() => navigator.clipboard.writeText(url)}
+        className="btn-secondary"
+      >
+        Copy URL
+      </button>
+    </div>
+  </div>
+</div>
+
+
+    // <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    //   <div className="rounded-2xl bg-white p-4 shadow">
+    //     <h2 className="mb-2 text-xl font-bold">Your Card Summary</h2>
+    //     <ul className="space-y-1 text-sm text-slate-700">
+    //       <li><b>Business:</b> {s.businessName || "–"}</li>
+    //       <li><b>Name:</b> {s.fullName || "–"}</li>
+    //       <li><b>Phone:</b> {s.phone || "–"}</li>
+    //       <li><b>WhatsApp:</b> {s.whatsapp || "–"}</li>
+    //       <li><b>Email:</b> {s.email || "–"}</li>
+    //       {s.website && <li><b>Website:</b> {s.website}</li>}
+    //       <li><b>Handle:</b> {s.slug || "–"}</li>
+    //     </ul>
+    //     <div className="mt-4 flex gap-2">
+    //       <Button onClick={onPreview} disabled={!allOk}>Open Public Card</Button>
+    //       <Button variant="outline" onClick={onSettings}>Edit Settings</Button>
+    //     </div>
+    //     {!allOk && <p className="mt-2 text-xs text-rose-600">Complete all required fields in Wizard/Settings to enable Public Card.</p>}
+    //   </div>
+
+    //   <div className="rounded-2xl bg-white p-4 shadow">
+    //     <h2 className="mb-2 text-xl font-bold">QR Code</h2>
+    //     <p className="mb-2 text-sm text-slate-600">Scan to open: <code>{url}</code></p>
+    //     <div className="flex items-center justify-center">
+    //       <div className="aspect-square w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
+    //         {busy ? (
+    //           <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">Generating…</div>
+    //         ) : qrDataUrl ? (
+    //           <img src={qrDataUrl} alt="QR" className="h-full w-full object-contain" />
+    //         ) : (
+    //           <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">No QR</div>
+    //         )}
+    //       </div>
+    //     </div>
+    //     <div className="mt-3 flex gap-2">
+    //       <Button onClick={download} disabled={!qrDataUrl}>Download PNG</Button>
+    //       <Button variant="outline" onClick={() => navigator.clipboard.writeText(url)}>Copy URL</Button>
+    //     </div>
+    //   </div>
+    // </div>
   );
 }
 
@@ -469,40 +539,107 @@ function PublicCard({ s, onBack }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow">
-      <div className="relative h-28 w-full" style={{ background: s.colorHex }} />
-      <div className="-mt-10 flex items-end gap-3 px-4">
-        {s.avatarDataUrl && (
-          <img src={s.avatarDataUrl} alt="avatar" className="h-20 w-20 rounded-full border-4 border-white object-cover shadow" />
-        )}
-        <div className="pb-2">
-          <h1 className="text-xl font-bold">{s.businessName}</h1>
-          <p className="-mt-0.5 text-sm text-slate-600">{s.fullName}</p>
-        </div>
-      </div>
+    <div className="business-card">
+  {/* Banner */}
+  <div className="banner" style={{ backgroundColor: s.colorHex || "#2563eb" }}></div>
 
-      <div className="grid gap-3 p-4">
-        <p className="text-sm leading-6 text-slate-800">{s.bio}</p>
-        {s.address && <p className="text-xs text-slate-500">📍 {s.address}</p>}
-
-        <div className="grid grid-cols-2 gap-2">
-          <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`tel:${s.phone}`}>Call</a>
-          <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}`} target="_blank">WhatsApp</a>
-          <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`mailto:${s.email}`}>Email</a>
-          {s.website && <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={s.website} target="_blank">Website</a>}
-        </div>
-
-        <div className="mt-2 rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
-          Public URL: <code>{url}</code>
-        </div>
-      </div>
-
-      <div className="border-t border-slate-200 bg-slate-50 p-3 text-center text-xs text-slate-500">LoopCard · Local Preview</div>
-
-      <div className="p-4">
-        <Button variant="outline" onClick={onBack}>Back to Dashboard</Button>
-      </div>
+  {/* Profile Section */}
+  <div className="profile-section">
+    {s.avatarDataUrl && (
+      <img
+        src={s.avatarDataUrl}
+        alt="avatar"
+        className="avatar"
+      />
+    )}
+    <div className="profile-info">
+      <h1 className="business-name">{s.businessName || "Your Business"}</h1>
+      <p className="full-name">{s.fullName || "Your Name"}</p>
     </div>
+  </div>
+
+  {/* Details Section */}
+  <div className="details">
+    {s.bio && <p className="bio">{s.bio}</p>}
+    {s.address && <p className="address">📍 {s.address}</p>}
+
+    <div className="actions">
+      {s.phone && (
+        <a href={`tel:${s.phone}`} className="action-btn">
+          📞 Call
+        </a>
+      )}
+      {s.whatsapp && (
+        <a
+          href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}`}
+          target="_blank"
+          rel="noreferrer"
+          className="action-btn"
+        >
+          💬 WhatsApp
+        </a>
+      )}
+      {s.email && (
+        <a href={`mailto:${s.email}`} className="action-btn">
+          ✉️ Email
+        </a>
+      )}
+      {s.website && (
+        <a href={s.website} target="_blank" rel="noreferrer" className="action-btn">
+          🌐 Website
+        </a>
+      )}
+    </div>
+
+    <div className="public-url">
+      Public URL: <code>{url}</code>
+    </div>
+  </div>
+
+  {/* Footer */}
+  <div className="card-footer">LoopCard · Local Preview</div>
+
+  <div className="back-btn-container">
+    <button className="btn-secondary" onClick={onBack}>
+      ⬅ Back to Dashboard
+    </button>
+  </div>
+</div>
+
+    // <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow">
+    //   <div className="relative h-28 w-full" style={{ background: s.colorHex }} />
+    //   <div className="-mt-10 flex items-end gap-3 px-4">
+    //     {s.avatarDataUrl && (
+    //       <img src={s.avatarDataUrl} alt="avatar" className="h-20 w-20 rounded-full border-4 border-white object-cover shadow" />
+    //     )}
+    //     <div className="pb-2">
+    //       <h1 className="text-xl font-bold">{s.businessName}</h1>
+    //       <p className="-mt-0.5 text-sm text-slate-600">{s.fullName}</p>
+    //     </div>
+    //   </div>
+
+    //   <div className="grid gap-3 p-4">
+    //     <p className="text-sm leading-6 text-slate-800">{s.bio}</p>
+    //     {s.address && <p className="text-xs text-slate-500">📍 {s.address}</p>}
+
+    //     <div className="grid grid-cols-2 gap-2">
+    //       <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`tel:${s.phone}`}>Call</a>
+    //       <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}`} target="_blank">WhatsApp</a>
+    //       <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={`mailto:${s.email}`}>Email</a>
+    //       {s.website && <a className="rounded-2xl border border-slate-200 p-3 text-center text-sm font-semibold hover:bg-slate-50" href={s.website} target="_blank">Website</a>}
+    //     </div>
+
+    //     <div className="mt-2 rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
+    //       Public URL: <code>{url}</code>
+    //     </div>
+    //   </div>
+
+    //   <div className="border-t border-slate-200 bg-slate-50 p-3 text-center text-xs text-slate-500">LoopCard · Local Preview</div>
+
+    //   <div className="p-4">
+    //     <Button variant="outline" onClick={onBack}>Back to Dashboard</Button>
+    //   </div>
+    // </div>
   );
 }
 
@@ -513,7 +650,7 @@ function Settings({ s, setS, onBack }) {
   const allOk = required.every((k) => !!tmp[k]) && isPhone(tmp.phone) && isPhone(tmp.whatsapp) && isEmail(tmp.email);
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow">
+    <div className="settings-card rounded-2xl bg-white p-4 shadow">
       <h2 className="mb-3 text-xl font-bold">Settings</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
@@ -532,7 +669,7 @@ function Settings({ s, setS, onBack }) {
         </div>
       </div>
 
-      <Section title="Edit Details">
+      <Section className="settings-section" title="Edit Details">
         <div>
           {label("", "Business Name *")}
           <Input value={tmp.businessName} onChange={(v) => setTmp((p) => ({ ...p, businessName: v }))} placeholder="Business" />
@@ -575,7 +712,7 @@ function Settings({ s, setS, onBack }) {
         </div>
       </Section>
 
-      <div className="mt-2 flex gap-2">
+      <div className="settings-actions mt-2 flex gap-2">
         <Button variant="outline" onClick={onBack}>Cancel</Button>
         <Button onClick={save} disabled={!allOk}>Save Changes</Button>
       </div>
