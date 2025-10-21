@@ -133,7 +133,12 @@ export default function App() {
 
   // auth state (local-only)
   const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_FLAG_KEY) === "1");
-
+  const [clickStats, setClickStats] = React.useState({
+    call: 0,
+    whatsapp: 0,
+    email: 0,
+    website: 0,
+  });
   useEffect(() => {
     // start at dashboard if already filled
     const allOk = required.every((k) => !!s[k]);
@@ -159,8 +164,8 @@ export default function App() {
       <Header onNav={setRoute} route={route} colorHex={s.colorHex} onLogout={handleLogout} />
       <main className="mx-auto max-w-4xl p-4 sm:p-6">
         {route === "wizard" && <Wizard s={s} setS={setS} onDone={() => setRoute("dashboard")} />}
-        {route === "dashboard" && <Dashboard s={s} onPreview={() => setRoute("public")} onSettings={() => setRoute("settings")} />}
-        {route === "public" && <PublicCard s={s} onBack={() => setRoute("dashboard")} />}
+        {route === "dashboard" && <Dashboard s={s} onPreview={() => setRoute("public")} onSettings={() => setRoute("settings")} clickStats={clickStats} />}
+        {route === "public" && <PublicCard s={s} onBack={() => setRoute("dashboard")} setClickStats={setClickStats}/>}
         {route === "settings" && <Settings s={s} setS={setS} onBack={() => setRoute("dashboard")} />}
       </main>
       <Footer />
@@ -385,7 +390,7 @@ function AvatarPicker({ s, setS }) {
   );
 }
 
-function Dashboard({ s, onPreview, onSettings }) {
+function Dashboard({ s, onPreview, onSettings, clickStats }) {
   const url = `http://localhost:5173/u/${s.slug || "your-handle"}`;
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -480,55 +485,58 @@ function Dashboard({ s, onPreview, onSettings }) {
       </button>
     </div>
   </div>
+  <div className="analytics-card">
+    <h2 className="analytics-title">Engagement Analytics</h2>
+    <div className="analytics-bars">
+      <div className="bar">
+        <span>📞 Calls</span>
+        <div className="bar-track">
+          <div className="bar-fill" style={{ width: `${clickStats.call * 10}px` }}></div>
+        </div>
+        <span className="count">{clickStats.call}</span>
+      </div>
+
+      <div className="bar">
+        <span>💬 WhatsApp</span>
+        <div className="bar-track">
+          <div className="bar-fill whatsapp" style={{ width: `${clickStats.whatsapp * 10}px` }}></div>
+        </div>
+        <span className="count">{clickStats.whatsapp}</span>
+      </div>
+
+      <div className="bar">
+        <span>✉️ Email</span>
+        <div className="bar-track">
+          <div className="bar-fill email" style={{ width: `${clickStats.email * 10}px` }}></div>
+        </div>
+        <span className="count">{clickStats.email}</span>
+      </div>
+
+      <div className="bar">
+        <span>🌐 Website</span>
+        <div className="bar-track">
+          <div className="bar-fill website" style={{ width: `${clickStats.website * 10}px` }}></div>
+        </div>
+        <span className="count">{clickStats.website}</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 
-    // <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-    //   <div className="rounded-2xl bg-white p-4 shadow">
-    //     <h2 className="mb-2 text-xl font-bold">Your Card Summary</h2>
-    //     <ul className="space-y-1 text-sm text-slate-700">
-    //       <li><b>Business:</b> {s.businessName || "–"}</li>
-    //       <li><b>Name:</b> {s.fullName || "–"}</li>
-    //       <li><b>Phone:</b> {s.phone || "–"}</li>
-    //       <li><b>WhatsApp:</b> {s.whatsapp || "–"}</li>
-    //       <li><b>Email:</b> {s.email || "–"}</li>
-    //       {s.website && <li><b>Website:</b> {s.website}</li>}
-    //       <li><b>Handle:</b> {s.slug || "–"}</li>
-    //     </ul>
-    //     <div className="mt-4 flex gap-2">
-    //       <Button onClick={onPreview} disabled={!allOk}>Open Public Card</Button>
-    //       <Button variant="outline" onClick={onSettings}>Edit Settings</Button>
-    //     </div>
-    //     {!allOk && <p className="mt-2 text-xs text-rose-600">Complete all required fields in Wizard/Settings to enable Public Card.</p>}
-    //   </div>
-
-    //   <div className="rounded-2xl bg-white p-4 shadow">
-    //     <h2 className="mb-2 text-xl font-bold">QR Code</h2>
-    //     <p className="mb-2 text-sm text-slate-600">Scan to open: <code>{url}</code></p>
-    //     <div className="flex items-center justify-center">
-    //       <div className="aspect-square w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
-    //         {busy ? (
-    //           <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">Generating…</div>
-    //         ) : qrDataUrl ? (
-    //           <img src={qrDataUrl} alt="QR" className="h-full w-full object-contain" />
-    //         ) : (
-    //           <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">No QR</div>
-    //         )}
-    //       </div>
-    //     </div>
-    //     <div className="mt-3 flex gap-2">
-    //       <Button onClick={download} disabled={!qrDataUrl}>Download PNG</Button>
-    //       <Button variant="outline" onClick={() => navigator.clipboard.writeText(url)}>Copy URL</Button>
-    //     </div>
-    //   </div>
-    // </div>
   );
 }
 
-function PublicCard({ s, onBack }) {
+function PublicCard({ s, onBack, setClickStats }) {
   const url = `http://localhost:5173/u/${s.slug}`;
   const canShow = required.every((k) => !!s[k]) && isPhone(s.phone) && isPhone(s.whatsapp) && isEmail(s.email);
-
+//  const [clickStats, setClickStats] = useState({call: 0, whatsapp: 0, email: 0, website: 0});
+  const handleClick = (type) => {
+    setClickStats((prev) => ({
+      ...prev,
+      [type]: prev[type] + 1,
+    }));
+  }
   if (!canShow) {
     return (
       <div className="rounded-2xl bg-white p-4 shadow">
@@ -565,7 +573,7 @@ function PublicCard({ s, onBack }) {
 
     <div className="actions">
       {s.phone && (
-        <a href={`tel:${s.phone}`} className="action-btn">
+        <a href={`tel:${s.phone}`} onClick={() => handleClick("call")} className="action-btn">
           📞 Call
         </a>
       )}
@@ -573,6 +581,7 @@ function PublicCard({ s, onBack }) {
         <a
           href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}`}
           target="_blank"
+          onClick={() => handleClick("whatsapp")}
           rel="noreferrer"
           className="action-btn"
         >
@@ -580,12 +589,12 @@ function PublicCard({ s, onBack }) {
         </a>
       )}
       {s.email && (
-        <a href={`mailto:${s.email}`} className="action-btn">
+        <a href={`mailto:${s.email}`} onClick={() => handleClick("email")} className="action-btn">
           ✉️ Email
         </a>
       )}
       {s.website && (
-        <a href={s.website} target="_blank" rel="noreferrer" className="action-btn">
+        <a href={s.website} onClick={() => handleClick("website")} target="_blank" rel="noreferrer" className="action-btn">
           🌐 Website
         </a>
       )}
